@@ -1,0 +1,24 @@
+make --dry-run --always-make --keep-going --print-directory
+error: failed to parse manifest at `/Users/shazaibn/Dev/query-comp/Cargo.toml`
+
+Caused by:
+  package name cannot be an empty string
+
+make: Entering directory `/Users/shazaibn/Dev/query-comp'
+echo Building interface.json from schemas in ./schemas
+wasmflow-codegen json interface "" ./schemas -o interface.json -f
+echo Generating src/components.rs
+wasmflow-codegen rust integration interface.json   -f -o src/components.rs
+ 
+mkdir -p ./src/components
+wasmflow-codegen rust component ./interface.json --all   -o ./src/components
+mkdir -p build/
+echo Building artifact
+cargo build --target wasm32-unknown-unknown --release
+echo Copying binary to build/.wasm
+cp /target/wasm32-unknown-unknown/release/.wasm build/
+echo Signing build/.wasm
+wafl wasm sign build/.wasm ./interface.json --ver=0.0.0 --rev=0
+echo Created build/.signed.wasm
+make: Leaving directory `/Users/shazaibn/Dev/query-comp'
+ 
